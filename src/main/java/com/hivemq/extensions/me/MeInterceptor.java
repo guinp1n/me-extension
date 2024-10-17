@@ -13,35 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hivemq.extensions.helloworld;
+package com.hivemq.extensions.me;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.interceptor.publish.PublishInboundInterceptor;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundInput;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundOutput;
 import com.hivemq.extension.sdk.api.packets.publish.ModifiablePublishPacket;
+import com.hivemq.extension.sdk.api.packets.publish.PublishPacket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 /**
- * This is a very simple {@link PublishInboundInterceptor},
- * it changes the payload of every incoming PUBLISH with the topic 'hello/world' to 'Hello World!'.
+ * Log every received retained publish from client with clientID startsWith(“ME”) with payload
  *
- * @author Yannick Weber
- * @since 4.3.1
+ * @author Dasha Samkova
+ * @since 4.33.0
  */
-public class HelloWorldInterceptor implements PublishInboundInterceptor {
+public class MeInterceptor implements PublishInboundInterceptor {
+    private static final @NotNull Logger log = LoggerFactory.getLogger(MeInterceptor.class);
 
     @Override
     public void onInboundPublish(
             final @NotNull PublishInboundInput publishInboundInput,
             final @NotNull PublishInboundOutput publishInboundOutput) {
 
-        final ModifiablePublishPacket publishPacket = publishInboundOutput.getPublishPacket();
-        if ("hello/world".equals(publishPacket.getTopic())) {
-            final ByteBuffer payload = ByteBuffer.wrap("Hello World!".getBytes(StandardCharsets.UTF_8));
-            publishPacket.setPayload(payload);
+        final PublishPacket publishPacket = publishInboundInput.getPublishPacket();
+
+        final String clientId = publishInboundInput.getClientInformation().getClientId();
+        if (clientId.startsWith("ME") && publishPacket.getRetain()) {
+            log.info("Received PUBLISH packet Retained with clientId: {}, payload: {}", clientId, publishPacket.getPayload().toString());
         }
     }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hivemq.extensions.helloworld;
+package com.hivemq.extensions.me;
 
 import com.hivemq.extension.sdk.api.ExtensionMain;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
@@ -25,16 +25,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is the main class of the extension,
- * which is instantiated either during the HiveMQ start up process (if extension is enabled)
- * or when HiveMQ is already started by enabling the extension.
- *
- * @author Florian Limpöck
- * @since 4.0.0
+ * @author Dasha Samkova
+ * @since 4.33.0
  */
-public class HelloWorldMain implements ExtensionMain {
 
-    private static final @NotNull Logger log = LoggerFactory.getLogger(HelloWorldMain.class);
+public class MeMain implements ExtensionMain {
+
+    private static final @NotNull Logger log = LoggerFactory.getLogger(MeMain.class);
 
     @Override
     public void extensionStart(
@@ -65,17 +62,17 @@ public class HelloWorldMain implements ExtensionMain {
     private void addClientLifecycleEventListener() {
         final EventRegistry eventRegistry = Services.eventRegistry();
 
-        final HelloWorldListener helloWorldListener = new HelloWorldListener();
+        final MeListener meListener = new MeListener();
 
-        eventRegistry.setClientLifecycleEventListener(input -> helloWorldListener);
+        eventRegistry.setClientLifecycleEventListener(input -> meListener);
     }
 
     private void addPublishModifier() {
         final InitializerRegistry initializerRegistry = Services.initializerRegistry();
 
-        final HelloWorldInterceptor helloWorldInterceptor = new HelloWorldInterceptor();
+        final MeInterceptor meInterceptor = new MeInterceptor();
 
         initializerRegistry.setClientInitializer(
-                (initializerInput, clientContext) -> clientContext.addPublishInboundInterceptor(helloWorldInterceptor));
+                (initializerInput, clientContext) -> clientContext.addPublishInboundInterceptor(meInterceptor));
     }
 }

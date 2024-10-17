@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hivemq.extensions.helloworld;
+package com.hivemq.extensions.me;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.events.client.ClientLifecycleEventListener;
@@ -25,29 +25,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is a very simple {@link ClientLifecycleEventListener}
- * which logs the MQTT version and identifier of every connecting client.
+ * Log every time any client with clientID startsWith(“ME”)
  *
- * @author Florian Limpöck
- * @since 4.0.0
+ * @author Dasha Samkova
+ * @since 4.33.0
  */
-public class HelloWorldListener implements ClientLifecycleEventListener {
+public class MeListener implements ClientLifecycleEventListener {
 
-    private static final @NotNull Logger log = LoggerFactory.getLogger(HelloWorldListener.class);
+    private static final @NotNull Logger log = LoggerFactory.getLogger(MeListener.class);
 
     @Override
     public void onMqttConnectionStart(final @NotNull ConnectionStartInput connectionStartInput) {
         final MqttVersion version = connectionStartInput.getConnectPacket().getMqttVersion();
-        switch (version) {
-            case V_5:
-                log.info("MQTT 5 client connected with id: {} ", connectionStartInput.getClientInformation().getClientId());
-                break;
-            case V_3_1_1:
-                log.info("MQTT 3.1.1 client connected with id: {} ", connectionStartInput.getClientInformation().getClientId());
-                break;
-            case V_3_1:
-                log.info("MQTT 3.1 client connected with id: {} ", connectionStartInput.getClientInformation().getClientId());
-                break;
+        final String clientId = connectionStartInput.getClientInformation().getClientId();
+        if (clientId.startsWith("ME")) {
+            log.info("Client connected with clientId: {}", clientId);
         }
     }
 
@@ -58,6 +50,7 @@ public class HelloWorldListener implements ClientLifecycleEventListener {
 
     @Override
     public void onDisconnect(final @NotNull DisconnectEventInput disconnectEventInput) {
-        log.info("Client disconnected with id: {} ", disconnectEventInput.getClientInformation().getClientId());
+        final String clientId = disconnectEventInput.getClientInformation().getClientId();
+        log.info("Client disconnected with clientId: {} ", clientId);
     }
 }

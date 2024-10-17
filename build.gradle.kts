@@ -5,14 +5,14 @@ plugins {
 }
 
 group = "com.hivemq.extensions"
-description = "HiveMQ 4 Hello World Extension - a simple reference for all extension developers"
+description = "HiveMQ 4 Me Extension - a simple reference for all extension developers"
 
 hivemqExtension {
-    name = "Hello World Extension"
+    name = "Me Extension"
     author = "HiveMQ"
     priority = 1000
     startPriority = 1000
-    mainClass = "$group.helloworld.HelloWorldMain"
+    mainClass = "$group.me.MeMain"
     sdkVersion = "$version"
 
     resources {
