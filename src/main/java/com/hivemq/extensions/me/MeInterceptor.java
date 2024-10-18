@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Log every received retained publish from client with clientID startsWith(“ME”) with payload
@@ -36,16 +37,33 @@ import java.nio.charset.StandardCharsets;
 public class MeInterceptor implements PublishInboundInterceptor {
     private static final @NotNull Logger log = LoggerFactory.getLogger(MeInterceptor.class);
 
+    private static String getStringFromByteBuffer(final ByteBuffer buffer) {
+        if (buffer == null) {
+            return null;
+        }
+        final byte[] bytes = new byte[buffer.remaining()];
+        for (int i = 0; i < buffer.remaining(); i++) {
+            bytes[i] = buffer.get(i);
+        }
+        return new String(bytes, UTF_8);
+    }
+
     @Override
     public void onInboundPublish(
             final @NotNull PublishInboundInput publishInboundInput,
             final @NotNull PublishInboundOutput publishInboundOutput) {
 
         final PublishPacket publishPacket = publishInboundInput.getPublishPacket();
-
         final String clientId = publishInboundInput.getClientInformation().getClientId();
+
         if (clientId.startsWith("ME") && publishPacket.getRetain()) {
-            log.info("Received PUBLISH packet Retained with clientId: {}, payload: {}", clientId, publishPacket.getPayload().toString());
+            final String payloadAsString;
+            if (publishPacket.getPayload().isPresent()) {
+                payloadAsString = getStringFromByteBuffer(publishPacket.getPayload().get());
+            } else {
+                payloadAsString = null;
+            }
+            log.info("Received PUBLISH packet Retained with clientId: {}, payload: {}", clientId, payloadAsString);
         }
     }
 }
