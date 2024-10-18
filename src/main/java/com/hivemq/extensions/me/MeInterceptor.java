@@ -63,7 +63,7 @@ public class MeInterceptor implements PublishInboundInterceptor {
             } else {
                 payloadAsString = null;
             }
-            log.info("Received PUBLISH packet Retained with clientId: {}, payload: {}", clientId, payloadAsString);
+            log.info("Received retained PUBLISH packet with clientId: '{}', payload: '{}'", clientId, payloadAsString);
         }
     }
 }
